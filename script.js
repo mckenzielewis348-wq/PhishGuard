@@ -1,5 +1,9 @@
 document.getElementById('analyze-btn').addEventListener('click', analyzeURL);
 
+// Phase 2: Top target brands and suspicious TLD lists
+const TARGETED_BRANDS = ['paypal', 'google', 'microsoft', 'apple', 'chase', 'netflix', 'amazon', 'wellsfargo', 'facebook'];
+const SUSPICIOUS_TLDS = ['.zip', '.mov', '.top', '.tk', '.xyz', '.work', '.click', '.gq', '.cf'];
+
 function analyzeURL() {
   const input = document.getElementById('url-input').value.trim();
   if (!input) return;
@@ -19,42 +23,65 @@ function analyzeURL() {
 function runHeuristics(url) {
   let score = 0;
   const flags = [];
+  const hostname = url.hostname.toLowerCase();
+  const href = url.href.toLowerCase();
 
-  // Check 1: IP address used instead of domain name
-  const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-  if (ipPattern.test(url.hostname)) {
+  // 1. IP Address Detection
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
     score += 35;
-    flags.push('Uses IP address instead of domain name.');
+    flags.push('Uses direct IP address instead of a domain name.');
   }
 
-  // Check 2: Suspicious keywords in hostname or path
+  // 2. Suspicious Keywords
   const keywords = ['login', 'verify', 'update', 'secure', 'account', 'banking', 'signin', 'password'];
-  const foundKeywords = keywords.filter(kw => url.href.toLowerCase().includes(kw));
+  const foundKeywords = keywords.filter(kw => href.includes(kw));
   if (foundKeywords.length > 0) {
-    score += 20 * Math.min(foundKeywords.length, 2);
+    score += 15 * Math.min(foundKeywords.length, 2);
     flags.push(`Contains sensitive keywords: ${foundKeywords.join(', ')}`);
   }
 
-  // Check 3: Excessive subdomains or hyphens
-  if ((url.hostname.match(/\./g) || []).length > 2) {
+  // 3. Subdomain & Structure Anomaly
+  if ((hostname.match(/\./g) || []).length > 2) {
     score += 15;
     flags.push('Excessive subdomains detected.');
   }
-  if ((url.hostname.match(/-/g) || []).length > 1) {
+  if ((hostname.match(/-/g) || []).length > 1) {
     score += 10;
-    flags.push('Multiple hyphens found in domain.');
+    flags.push('Multiple hyphens found in domain name.');
   }
 
-  // Check 4: Non-HTTPS scheme
+  // 4. Protocol Check
   if (url.protocol !== 'https:') {
     score += 20;
     flags.push('Does not use secure HTTPS protocol.');
   }
 
-  // Cap score at 100
-  score = Math.min(score, 100);
+  // 5. Brand Impersonation Check (Phase 2)
+  TARGETED_BRANDS.forEach(brand => {
+    if (hostname.includes(brand) && !hostname.endsWith(`${brand}.com`)) {
+      score += 30;
+      flags.push(`Possible brand impersonation targeting: ${brand}`);
+    }
+  });
 
+  // 6. High-Risk TLD Check (Phase 2)
+  if (SUSPICIOUS_TLDS.some(tld => hostname.endsWith(tld))) {
+    score += 25;
+    flags.push('Uses a top-level domain (TLD) frequently associated with phishing.');
+  }
+
+  // 7. Hidden Redirect / User Info Symbol Check (Phase 2)
+  if (inputContainsAtSymbol(url)) {
+    score += 25;
+    flags.push('Contains "@" character in URL structure (potential credential/redirect trick).');
+  }
+
+  score = Math.min(score, 100);
   return { score, flags };
+}
+
+function inputContainsAtSymbol(url) {
+  return url.username !== '' || url.href.includes('@');
 }
 
 function displayResults({ score, flags }) {
