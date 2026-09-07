@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Phishing Risk Analyzer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PhishGuard</h1>
+      <p>Privacy-Focused Client-Side Phishing Risk Analyzer</p>
+    </header>
+
+    <main>
+      <section class="analyzer-card">
+        <label for="url-input">Enter Web Address (URL) to Analyze:</label>
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="url-input" 
+            placeholder="e.g., https://login-secure-bank-update.com" 
+            autocomplete="off"
+          />
+          <button id="analyze-btn">Analyze URL</button>
+        </div>
+      </section>
+
+      <section id="results-card" class="results-card hidden">
+        <h2>Analysis Results</h2>
+        <div class="score-container">
+          <div id="risk-badge" class="badge">--</div>
+          <p id="risk-score-text">Risk Score: 0/100</p>
+        </div>
+
+        <div class="details">
+          <h3>Detected Risk Indicators</h3>
+          <ul id="heuristics-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 PhishGuard. All analysis is performed locally in your browser.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
