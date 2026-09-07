@@ -28,7 +28,10 @@
       </section>
 
       <section id="results-card" class="results-card hidden">
-        <h2>Analysis Results</h2>
+        <div class="results-header">
+          <h2>Analysis Results</h2>
+          <button id="copy-btn" class="secondary-btn">Copy Summary</button>
+        </div>
         <div class="score-container">
           <div id="risk-badge" class="badge">--</div>
           <p id="risk-score-text">Risk Score: 0/100</p>
@@ -38,6 +41,19 @@
           <h3>Detected Risk Indicators</h3>
           <ul id="heuristics-list"></ul>
         </div>
+
+        <div class="education-box">
+          <h3>Educational Recommendations</h3>
+          <ul id="education-list"></ul>
+        </div>
+      </section>
+
+      <section class="history-card">
+        <div class="history-header">
+          <h3>Recent Scan History</h3>
+          <button id="clear-history-btn" class="text-btn">Clear History</button>
+        </div>
+        <ul id="history-list"></ul>
       </section>
     </main>
 
